@@ -8,9 +8,7 @@ defmodule Angry.Nft do
     field :available, :boolean
 
     # one-to-one
-    has_one(:owner, Angry.User)
-
-    # one-to-one
+    belongs_to(:owner, Angry.User)
     belongs_to(:collection, Angry.Collection)
 
     timestamps()

@@ -20,6 +20,7 @@ defmodule Angry.MixProject do
   def application do
     [
       mod: {Angry.Application, []},
+      applicatons: [:ex_machina],
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -50,7 +51,9 @@ defmodule Angry.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.6.0"},
-      {:absinthe_plug, "~> 1.5"}
+      {:absinthe_plug, "~> 1.5"},
+      {:ex_machina, "~> 2.7.0", only: :test},
+      {:faker, "~> 0.17", only: :test}
     ]
   end
 

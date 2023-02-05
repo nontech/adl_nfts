@@ -1,5 +1,8 @@
 defmodule AngryWeb.Graphql.Schema do
   use Absinthe.Schema
+  alias Angry.Nft
+  alias Angry.Repo
+  import Ecto.Query
 
   # QUERIES
   # ---------------------------------------
@@ -27,31 +30,55 @@ defmodule AngryWeb.Graphql.Schema do
     field :id, non_null(:id)
     field :name, non_null(:string)
     field :description, non_null(:string)
-    field :owner, non_null(:string)
-    field :collection, non_null(:string)
+    field :owner, non_null(:user)
+    field :collection, non_null(:collection)
     field :price, non_null(:integer)
     field :available, non_null(:boolean)
+  end
+
+  @desc "A User"
+  object :user do
+    field :username, non_null(:string)
+  end
+
+  @desc "A Collection"
+  object :collection do
+    field :name, non_null(:string)
   end
 
   # RESOLVERS
   # ---------------------------------------
   defp get_nft(_parent, %{id: id}, _resolution) do
+    IO.puts("Reached Resolverssssssss")
     # get nft from database store
-    # NftStore.get_nft!(id)
+    nft =
+      Repo.get!(Nft, id)
+      |> Repo.preload([:owner, :collection])
 
-    {:ok,
-     %{
-       id: 1,
-       name: 'T-Rex',
-       description: '',
-       owner: 'John Doe',
-       collection: 'earth',
-       price: 123,
-       available: true
-     }}
+    IO.inspect(nft, label: "Resulting NFttttttt")
+
+    # {:ok,
+    #  %{
+    #    id: 1,
+    #    name: 'T-Rex',
+    #    description: '',
+    #    owner: 'John Doe',
+    #    collection: 'earth',
+    #    price: 123,
+    #    available: true
+    #  }}
+    {:ok, nft}
   end
 
   defp list_nfts(_parent, _args, _resolution) do
+    # query =
+    #   from n in NFT,
+    #     where:
+    #       n.sale == ^sale and n.property == ^property and n.owner == ^owner and
+    #         n.collection == ^collection
+
+    # Repo.all(query)
+
     nfts_list = [
       %{
         id: 1,
