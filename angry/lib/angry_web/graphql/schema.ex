@@ -49,36 +49,14 @@ defmodule AngryWeb.Graphql.Schema do
   # RESOLVERS
   # ---------------------------------------
   defp get_nft(_parent, %{id: id}, _resolution) do
-    IO.puts("Reached Resolverssssssss")
-    # get nft from database store
     nft =
       Repo.get!(Nft, id)
       |> Repo.preload([:owner, :collection])
 
-    IO.inspect(nft, label: "Resulting NFttttttt")
-
-    # {:ok,
-    #  %{
-    #    id: 1,
-    #    name: 'T-Rex',
-    #    description: '',
-    #    owner: 'John Doe',
-    #    collection: 'earth',
-    #    price: 123,
-    #    available: true
-    #  }}
     {:ok, nft}
   end
 
   defp list_nfts(_parent, _args, _resolution) do
-    # query =
-    #   from n in NFT,
-    #     where:
-    #       n.sale == ^sale and n.property == ^property and n.owner == ^owner and
-    #         n.collection == ^collection
-
-    # Repo.all(query)
-
     nfts_list = [
       %{
         id: 1,
@@ -113,31 +91,47 @@ defmodule AngryWeb.Graphql.Schema do
     # nfts_list
   end
 
-  defp filter_nfts(_parent, %{search_by: filter_args} = _args, _resolution) do
-    # nfts = NFTS.filter_by(filter_args)
+  defp filter_nfts(
+         _parent,
+         %{search_by: %{name: name, owner: owner, available: available, collection: collection}} =
+           _args,
+         _resolution
+       ) do
+    query =
+      from n in Nft,
+        left_join: o in assoc(n, :owner),
+        left_join: c in assoc(n, :collection),
+        where:
+          n.name == ^name and o.username == ^owner and c.name == ^collection and
+            n.available == ^available,
+        preload: [owner: o, collection: c]
 
-    filtered_nfts = [
-      %{
-        id: 1,
-        name: 'Velociraptor',
-        description: '',
-        owner: 'MRD',
-        collection: 'water',
-        price: 100,
-        available: true
-      },
-      %{
-        id: 2,
-        name: 'Diplodocus',
-        description: '',
-        owner: 'Terry',
-        collection: 'fire',
-        price: 200,
-        available: false
-      }
-    ]
+    resp = Repo.all(query)
 
-    {:ok, filtered_nfts}
+    {:ok, resp}
+
+    # filtered_nfts = [
+    #   %{
+    #     id: 1,
+    #     name: 'Velociraptor',
+    #     description: '',
+    #     owner: 'MRD',
+    #     collection: 'water',
+    #     price: 100,
+    #     available: true
+    #   },
+    #   %{
+    #     id: 2,
+    #     name: 'Diplodocus',
+    #     description: '',
+    #     owner: 'Terry',
+    #     collection: 'fire',
+    #     price: 200,
+    #     available: false
+    #   }
+    # ]
+
+    # {:ok, filtered_nfts}
   end
 
   # INPUT OBJECTS
